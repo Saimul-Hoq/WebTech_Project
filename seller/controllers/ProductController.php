@@ -84,8 +84,8 @@ class ProductController {
                 $errors['category_id'] = 'Please select a category.';
             }
 
-            if ($old['price'] === '' || !is_numeric($old['price']) || $old['price'] < 0) {
-                $errors['price'] = 'Enter a valid price.';
+           if ($old['price'] === '' || !is_numeric($old['price']) || $old['price'] <= 0) {
+                 $errors['price'] = 'Price must be greater than $0.';
             }
 
             if ($old['stock_quantity'] === '' || !is_numeric($old['stock_quantity']) || $old['stock_quantity'] < 0) {
@@ -193,8 +193,8 @@ class ProductController {
                 $errors['category_id'] = 'Please select a category.';
             }
 
-            if ($old['price'] === '' || !is_numeric($old['price']) || $old['price'] < 0) {
-                $errors['price'] = 'Enter a valid price.';
+            if ($old['price'] === '' || !is_numeric($old['price']) || $old['price'] <= 0) {
+                $errors['price'] = 'Price must be greater than $0.';
             }
 
             if ($old['stock_quantity'] === '' || !is_numeric($old['stock_quantity']) || $old['stock_quantity'] < 0) {
