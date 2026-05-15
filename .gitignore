@@ -1,3 +1,5 @@
 .DS_Store
 seller/uploads/logos/*
 seller/uploads/products/*
+!seller/uploads/logos/.gitkeep
+!seller/uploads/products/.gitkeep
