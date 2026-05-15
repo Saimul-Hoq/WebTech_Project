@@ -71,7 +71,7 @@ class Product {
              WHERE id = ? AND seller_id = ?"
         );
         $stmt->bind_param(
-            "issdiiii",
+            "issdiii",
             $data['category_id'],
             $data['name'],
             $data['description'],
