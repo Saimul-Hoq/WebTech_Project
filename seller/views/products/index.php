@@ -115,11 +115,11 @@
                                     💾
                                 </button>
                             </div>
-                            <?php if ($p['stock_quantity'] < 10): ?>
-                                <div style="font-size:11px;color:#ef4444;margin-top:3px;font-weight:600;">
-                                    ⚠️ Low stock
-                                </div>
-                            <?php endif; ?>
+                                <div id="low-warning-<?= $p['id'] ?>"
+                                     style="font-size:11px;color:#ef4444;margin-top:3px;font-weight:600;
+                                             display:<?= $p['stock_quantity'] <= 10 ? 'block' : 'none' ?>;">
+                                                                     ⚠️ Low stock
+                                                                                                                    </div>
                         </td>
 
                         <!-- STATUS -->
@@ -171,8 +171,8 @@ function updateStock(productId) {
         return;
     }
 
-    btn.textContent  = '⏳';
-    btn.disabled     = true;
+    btn.textContent = '⏳';
+    btn.disabled    = true;
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'api/stock_update.php', true);
@@ -182,9 +182,16 @@ function updateStock(productId) {
         const res = JSON.parse(xhr.responseText);
         if (res.success) {
             btn.textContent = '✅';
+            btn.disabled    = false;
+
+            // Show or hide low stock warning dynamically
+            const warningEl = document.getElementById('low-warning-' + productId);
+            if (warningEl) {
+                warningEl.style.display = newQty <= 10 ? 'block' : 'none';
+            }
+
             setTimeout(() => {
                 btn.textContent = '💾';
-                btn.disabled    = false;
             }, 1500);
         } else {
             btn.textContent = '❌';
@@ -200,30 +207,6 @@ function updateStock(productId) {
     };
 
     xhr.send('product_id=' + productId + '&quantity=' + newQty);
-}
-
-// AJAX: Check low stock products
-function checkLowStock() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'api/low_stock.php', true);
-
-    xhr.onload = function () {
-        const res    = JSON.parse(xhr.responseText);
-        const banner = document.getElementById('low-stock-banner');
-        const list   = document.getElementById('low-stock-list');
-
-        if (res.success && res.products.length > 0) {
-            const names = res.products.map(p => p.name + ' (' + p.stock_quantity + ')').join(', ');
-            list.textContent = names;
-            banner.style.display = 'block';
-        } else if (res.success && res.products.length === 0) {
-            alert('✅ All products have sufficient stock!');
-        } else {
-            alert('Failed to check stock.');
-        }
-    };
-
-    xhr.send();
 }
 </script>
 
