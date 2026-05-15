@@ -5,8 +5,19 @@ session_start();
 // Load database config
 require_once __DIR__ . '/config/database.php';
 
-// Get the page from URL, default to login
-$page = isset($_GET['page']) ? $_GET['page'] : 'login';
+// Security: strip tags from GET/POST to prevent XSS
+$page = isset($_GET['page']) ? strip_tags(trim($_GET['page'])) : 'login';
+
+// Public pages — no login required
+$publicPages = ['login', 'register'];
+
+// If not a public page and not logged in — redirect to login
+if (!in_array($page, $publicPages) && $page !== 'logout') {
+    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'seller') {
+        header('Location: index.php?page=login');
+        exit;
+    }
+}
 
 // Route map — page => [controller file, controller class, method]
 $routes = [
@@ -26,6 +37,7 @@ $routes = [
     'coupons'         => ['controllers/CouponController.php',   'CouponController',   'index'],
     'coupons-create'  => ['controllers/CouponController.php',   'CouponController',   'create'],
     'coupons-toggle'  => ['controllers/CouponController.php',   'CouponController',   'toggle'],
+    'coupons-delete'  => ['controllers/CouponController.php',   'CouponController',   'delete'],
     'reviews'         => ['controllers/ReviewController.php',   'ReviewController',   'index'],
     'reviews-reply'   => ['controllers/ReviewController.php',   'ReviewController',   'reply'],
     'returns'         => ['controllers/ReturnController.php',   'ReturnController',   'index'],
