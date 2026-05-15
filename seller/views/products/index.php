@@ -160,6 +160,36 @@
 
 <!-- AJAX SCRIPTS -->
 <script>
+function checkLowStock() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'api/low_stock.php', true);
+
+    xhr.onload = function () {
+        try {
+            const res    = JSON.parse(xhr.responseText);
+            const banner = document.getElementById('low-stock-banner');
+            const list   = document.getElementById('low-stock-list');
+
+            if (res.success && res.products.length > 0) {
+                const names = res.products.map(p => p.name + ' (' + p.stock_quantity + ')').join(', ');
+                list.textContent = names;
+                banner.style.display = 'block';
+            } else if (res.success && res.products.length === 0) {
+                alert('✅ All products have sufficient stock!');
+            } else {
+                alert('Failed to check stock.');
+            }
+        } catch(e) {
+            alert('Error parsing response.');
+        }
+    };
+
+    xhr.onerror = function() {
+        alert('Network error. Try again.');
+    };
+
+    xhr.send();
+}
 // AJAX: Update stock quantity inline
 function updateStock(productId) {
     const input  = document.getElementById('stock-' + productId);
