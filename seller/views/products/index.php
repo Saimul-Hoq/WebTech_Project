@@ -96,7 +96,7 @@
                         <!-- PRICE -->
                         <td>
                             <strong style="color:#1a1a2e;">
-                                $<?= number_format($p['price'], 2) ?>
+                                Tk <?= number_format($p['price'], 2) ?>
                             </strong>
                         </td>
 

@@ -110,10 +110,10 @@
                         <!-- AMOUNT -->
                         <td>
                             <strong style="color:#1a1a2e;">
-                                $<?= number_format($o['price'] * $o['quantity'], 2) ?>
+                                Tk <?= number_format($o['price'] * $o['quantity'], 2) ?>
                             </strong>
                             <div style="font-size:11px;color:#9ca3af;">
-                                $<?= number_format($o['price'], 2) ?> each
+                                Tk <?= number_format($o['price'], 2) ?> each
                             </div>
                         </td>
 

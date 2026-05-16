@@ -48,7 +48,7 @@
                     Order Total
                 </span>
                 <span style="font-size:16px;font-weight:800;color:#1a1a2e;">
-                    $<?= number_format($order['total_amount'], 2) ?>
+                    Tk <?= number_format($order['total_amount'], 2) ?>
                 </span>
             </div>
 
@@ -146,11 +146,11 @@
                             Qty: <strong style="color:#374151;"><?= $item['quantity'] ?></strong>
                         </div>
                         <div style="font-size:13px;color:#6b7280;">
-                            Unit price: <strong style="color:#374151;">$<?= number_format($item['price'], 2) ?></strong>
+                            Unit price: <strong style="color:#374151;">Tk <?= number_format($item['price'], 2) ?></strong>
                         </div>
                         <div style="font-size:13px;color:#6b7280;">
                             Subtotal: <strong style="color:#1a1a2e;font-size:15px;">
-                                $<?= number_format($item['price'] * $item['quantity'], 2) ?>
+                                Tk <?= number_format($item['price'] * $item['quantity'], 2) ?>
                             </strong>
                         </div>
                     </div>
