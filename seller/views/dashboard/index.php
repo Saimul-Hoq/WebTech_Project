@@ -5,7 +5,7 @@
 
     <div class="stat-card" style="border-top:4px solid #7c3aed;">
         <div class="stat-label">💰 Total Revenue</div>
-        <div class="stat-value">$<?= number_format($totalRevenue, 2) ?></div>
+        <div class="stat-value">Tk <?= number_format($totalRevenue, 2) ?></div>
         <div class="stat-sub">From delivered orders</div>
     </div>
 
@@ -55,7 +55,7 @@
                         <tr>
                             <td><?= htmlspecialchars($order['customer_name']) ?></td>
                             <td><?= htmlspecialchars($order['product_name']) ?></td>
-                            <td>$<?= number_format($order['price'] * $order['quantity'], 2) ?></td>
+                            <td>Tk <?= number_format($order['price'] * $order['quantity'], 2) ?></td>
                             <td>
                                 <?php
                                 $badgeMap = [
@@ -131,7 +131,7 @@
                     </div>
                     <div style="text-align:right;">
                         <div style="font-size:13px;font-weight:700;color:#1a1a2e;">
-                            $<?= number_format($p['revenue'], 2) ?>
+                            Tk <?= number_format($p['revenue'], 2) ?>
                         </div>
                         <div style="font-size:11px;color:#6b7280;">
                             <?= $p['units_sold'] ?> sold

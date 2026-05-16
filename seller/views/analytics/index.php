@@ -14,7 +14,7 @@
 <div class="grid-4" style="margin-bottom:24px;">
     <div class="stat-card" style="border-top:4px solid #7c3aed;">
         <div class="stat-label">💰 Total Revenue</div>
-        <div class="stat-value">$<?= number_format($totalRevenue, 2) ?></div>
+        <div class="stat-value">Tk <?= number_format($totalRevenue, 2) ?></div>
         <div class="stat-sub">Last <?= $period ?> days (delivered)</div>
     </div>
     <div class="stat-card" style="border-top:4px solid #10b981;">
@@ -24,12 +24,12 @@
     </div>
     <div class="stat-card" style="border-top:4px solid #f59e0b;">
         <div class="stat-label">📊 Avg Order Value</div>
-        <div class="stat-value">$<?= number_format($avgOrderValue, 2) ?></div>
+        <div class="stat-value">Tk <?= number_format($avgOrderValue, 2) ?></div>
         <div class="stat-sub">Per order</div>
     </div>
     <div class="stat-card" style="border-top:4px solid #10b981;">
         <div class="stat-label">💵 Net Payout</div>
-        <div class="stat-value">$<?= number_format($netPayout, 2) ?></div>
+        <div class="stat-value">Tk <?= number_format($netPayout, 2) ?></div>
         <div class="stat-sub">After 10% commission</div>
     </div>
 </div>
@@ -61,7 +61,7 @@
                         background:#f0fdf4;border-radius:8px;border-left:3px solid #10b981;">
                 <span style="font-size:13px;font-weight:700;color:#065f46;">Gross Revenue</span>
                 <span style="font-size:16px;font-weight:800;color:#065f46;">
-                    $<?= number_format($totalRevenue, 2) ?>
+                    Tk <?= number_format($totalRevenue, 2) ?>
                 </span>
             </div>
 
@@ -74,7 +74,7 @@
                     <div style="font-size:11px;color:#ef4444;">10% of gross revenue</div>
                 </div>
                 <span style="font-size:16px;font-weight:800;color:#991b1b;">
-                    -$<?= number_format($commission, 2) ?>
+                    -Tk <?= number_format($commission, 2) ?>
                 </span>
             </div>
 
@@ -82,7 +82,7 @@
                         background:#ede9fe;border-radius:8px;border-left:3px solid #7c3aed;">
                 <span style="font-size:14px;font-weight:800;color:#5b21b6;">Net Payout</span>
                 <span style="font-size:20px;font-weight:800;color:#5b21b6;">
-                    $<?= number_format($netPayout, 2) ?>
+                    Tk <?= number_format($netPayout, 2) ?>
                 </span>
             </div>
 
@@ -125,7 +125,7 @@
                             <?= htmlspecialchars($p['name']) ?>
                         </td>
                         <td><?= $p['units_sold'] ?> units</td>
-                        <td><strong>$<?= number_format($p['revenue'], 2) ?></strong></td>
+                        <td><strong>Tk <?= number_format($p['revenue'], 2) ?></strong></td>
                         <td>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <div style="flex:1;height:6px;background:#f3f4f6;border-radius:4px;">
@@ -188,7 +188,7 @@ function renderChart(labels, values) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Revenue ($)',
+                label: 'Revenue (Tk.)',
                 data: values,
                 backgroundColor: 'rgba(124, 58, 237, 0.15)',
                 borderColor: '#7c3aed',
@@ -203,7 +203,7 @@ function renderChart(labels, values) {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: v => '$' + v.toLocaleString()
+                        callback: v => 'Tk.' + v.toLocaleString()
                     }
                 }
             }

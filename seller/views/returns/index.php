@@ -99,7 +99,7 @@
                         <!-- AMOUNT -->
                         <td>
                             <strong style="color:#1a1a2e;">
-                                $<?= number_format($r['price'] * $r['quantity'], 2) ?>
+                                Tk <?= number_format($r['price'] * $r['quantity'], 2) ?>
                             </strong>
                         </td>
 
