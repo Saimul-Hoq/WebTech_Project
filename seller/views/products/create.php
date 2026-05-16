@@ -47,7 +47,7 @@
 
                 <div class="grid-2">
                     <div class="form-group">
-                        <label class="form-label">Price ($) *</label>
+                        <label class="form-label">Price (Tk.) *</label>
                         <input type="number" name="price" step="0.01" min="0"
                                class="form-control <?= !empty($errors['price']) ? 'is-error' : '' ?>"
                                value="<?= htmlspecialchars($old['price'] ?? '') ?>"
