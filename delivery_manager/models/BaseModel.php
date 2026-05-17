@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+if (!defined('DB_HOST')) require_once __DIR__ . '/../config/db.php';
 
 class BaseModel {
     protected $conn;

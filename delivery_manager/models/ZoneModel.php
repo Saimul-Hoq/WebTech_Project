@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/BaseModel.php';
+if (!class_exists('BaseModel')) require_once __DIR__ . '/BaseModel.php';
 
 class ZoneModel extends BaseModel {
 
