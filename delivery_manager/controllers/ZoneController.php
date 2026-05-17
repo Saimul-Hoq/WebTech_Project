@@ -1,14 +1,24 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/../config/auth_guard.php';
 requireDeliveryManager();
-require_once __DIR__ . '/../models/ZoneModel.php';
+if (!class_exists('ZoneModel')) require_once __DIR__ . '/../models/ZoneModel.php';
 
 $model  = new ZoneModel();
 $action = $_GET['action'] ?? 'list';
 
+
 if ($action === 'list') {
     $zones = $model->getAllZones();
     require_once __DIR__ . '/../views/zones/list.php';
+
+/*if ($action === 'list') {
+    $zones = $model->getAllZones();
+    echo "Before header";
+    require_once __DIR__ . '/../views/layouts/header.php';
+    echo "After header";
+    exit;*/
 
 } elseif ($action === 'add') {
     require_once __DIR__ . '/../views/zones/form.php';
