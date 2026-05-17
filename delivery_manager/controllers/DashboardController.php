@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/auth_guard.php';
 requireDeliveryManager();
-require_once __DIR__ . '/../views/layouts/header.php';
-?>
+require_once __DIR__ . '/../models/ReportModel.php';
 
-<h2>Dashboard</h2>
-<p>Welcome, <?= htmlspecialchars($_SESSION['name']) ?></p>
+$model = new ReportModel();
+$stats = $model->getDashboardStats();
 
-<?php require_once __DIR__ . '/../views/layouts/footer.php'; ?>
+require_once __DIR__ . '/../views/dashboard.php';
