@@ -1,3 +1,4 @@
 <?php
-// Entry point — routing comes later
-echo "Delivery Manager module loaded.";
+// Entry point for Delivery Manager module
+header("Location: /WebTech_Project/delivery_manager/controllers/DashboardController.php");
+exit;
