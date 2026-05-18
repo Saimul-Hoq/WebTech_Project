@@ -31,6 +31,15 @@
 
 <div class="container">
   <h2>Manage Sellers</h2>
+    <form method="GET" action="SellerController.php" style="margin-bottom:20px;">
+    <div style="display:flex; gap:10px;">
+        <input type="text" name="search" placeholder="Search seller name or shop"
+            value="<?= htmlspecialchars($search ?? '') ?>"
+            style="padding:8px; border:1px solid #ccc; border-radius:4px; width:250px;">
+        <button type="submit" style="padding:8px 16px; background:#333; color:white; border:none; border-radius:4px; cursor:pointer;">Search</button>
+    </div>
+    </form>
+
   <table>
     <tr>
       <th>ID</th>
