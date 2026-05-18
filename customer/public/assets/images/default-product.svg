@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="675" viewBox="0 0 900 675" role="img" aria-label="Default product image">
+  <rect width="900" height="675" fill="#edf3f1"/>
+  <rect x="170" y="132" width="560" height="410" rx="28" fill="#ffffff" stroke="#cbd8d2" stroke-width="8"/>
+  <circle cx="345" cy="278" r="72" fill="#d99b34"/>
+  <path d="M218 492l152-158 103 104 72-72 137 126H218z" fill="#1e7a5f"/>
+  <text x="450" y="598" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#182026">ShopHub Product</text>
+</svg>
