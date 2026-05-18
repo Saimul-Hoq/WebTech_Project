@@ -1,5 +1,6 @@
 <?php
 
+//created account class
 class Account extends Controller
 {
     public function profile()
