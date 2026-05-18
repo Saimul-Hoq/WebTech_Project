@@ -1,0 +1,571 @@
+Feature 3.1.1: Customer Product Browsing
+
+The customer first sees the home page, where all available products are displayed. Customers can search products, filter by category, view product details, and see product price, stock, seller, and category information. If a product image is missing, the system shows a fallback/default image.
+
+[ADD SCREENSHOT HERE: Home page showing navbar, product cards, search bar, category filter, and footer]
+
+Relevant Source Code
+
+File: customer/app/controllers/Home.php
+
+public function index()
+{
+    $productModel = $this->model('Product');
+
+    $filters = [
+        'q' => trim($_GET['q'] ?? ''),
+        'category' => $_GET['category'] ?? '',
+    ];
+
+    $this->view('home', [
+        'title' => 'Fresh finds for every cart',
+        'products' => $productModel->featured($filters),
+        'categories' => $productModel->categories(),
+        'filters' => $filters,
+    ]);
+}
+
+File: customer/app/models/Product.php
+
+public function featured($filters = [])
+{
+    $sql = "SELECT p.*, c.name AS category_name, s.shop_name
+            FROM products p
+            JOIN categories c ON c.id = p.category_id
+            JOIN sellers s ON s.id = p.seller_id
+            WHERE p.is_available = 1";
+    $params = [];
+
+    if (!empty($filters['category'])) {
+        $sql .= " AND p.category_id = ?";
+        $params[] = (int) $filters['category'];
+    }
+
+    if (!empty($filters['q'])) {
+        $sql .= " AND (p.name LIKE ? OR p.description LIKE ? OR s.shop_name LIKE ?)";
+        $term = '%' . $filters['q'] . '%';
+        $params[] = $term;
+        $params[] = $term;
+        $params[] = $term;
+    }
+
+    $sql .= " ORDER BY p.created_at DESC";
+    return $this->db->query($sql, $params);
+}
+
+Code Explanation
+
+featured() fetches only available products and joins categories and sellers, so product cards can show category and shop information.
+
+The search filter checks product name, product description, and seller shop name.
+
+The category filter limits results to a selected category using category_id.
+
+Fallback images are handled by product_image() in customer/app/core/functions.php, preventing broken images on the home page.
+
+
+Feature 3.1.2: Product Detail View
+
+Customers can open a single product page to see a larger product image, product description, category, seller name, stock quantity, and price. From this page, customers can add the product to cart or save it to wishlist if they are logged in.
+
+[ADD SCREENSHOT HERE: Product detail page showing image, description, price, stock, Add to Cart button, and Wishlist button]
+
+Relevant Source Code
+
+File: customer/app/controllers/Products.php
+
+public function show($id = null)
+{
+    $productModel = $this->model('Product');
+    $product = $productModel->find((int) $id);
+
+    if (!$product) {
+        flash('error', 'Product not found.');
+        redirect('');
+    }
+
+    $this->view('products/show', [
+        'title' => $product['name'],
+        'product' => $product,
+    ]);
+}
+
+File: customer/app/models/Product.php
+
+public function find($id)
+{
+    return $this->db->one(
+        "SELECT p.*, c.name AS category_name, s.shop_name
+         FROM products p
+         JOIN categories c ON c.id = p.category_id
+         JOIN sellers s ON s.id = p.seller_id
+         WHERE p.id = ?",
+        [(int) $id]
+    );
+}
+
+Code Explanation
+
+show() receives the product id from the route and loads that product from the database.
+
+If the product id is invalid, the customer is redirected back to the home page with an error message.
+
+The model joins products with categories and sellers so the product detail page can show complete marketplace information.
+
+
+Feature 3.1.3: Customer Authentication
+
+Customers can register and login using email and password. Only users with the customer role can login from the customer login page. Seller, admin, or delivery manager users are blocked from this login system.
+
+[ADD SCREENSHOT HERE: Customer login page]
+[ADD SCREENSHOT HERE: Customer registration page]
+[ADD SCREENSHOT HERE: Error message when a non-customer account tries to login]
+
+Relevant Source Code
+
+File: customer/app/controllers/Auth.php
+
+$user = $userModel->findByEmail($email);
+
+if (!$user || $user['password'] !== $password) {
+    flash('error', 'Invalid email or password.');
+    redirect('auth/login');
+}
+
+if ($user['role'] !== 'customer') {
+    flash('error', 'Only customers can login from this page.');
+    redirect('auth/login');
+}
+
+if ((int) $user['is_active'] !== 1) {
+    flash('error', 'Your account is inactive. Please contact support.');
+    redirect('auth/login');
+}
+
+File: customer/app/models/User.php
+
+public function createCustomer($data)
+{
+    return $this->db->insert(
+        "INSERT INTO users (name, email, password, phone, role, is_active) VALUES (?, ?, ?, ?, 'customer', 1)",
+        [$data['name'], $data['email'], $data['password'], $data['phone']]
+    );
+}
+
+Code Explanation
+
+Login is checked using email and plain password, as required for the current project version.
+
+The role check ensures that only customer accounts can access the customer side.
+
+During registration, the role is automatically inserted as customer, so customers cannot register as seller/admin from this form.
+
+After successful login or registration, customer information is stored in $_SESSION['user'].
+
+
+Feature 3.1.4: Cart Management
+
+Customers can add products to the cart, update product quantity, remove products, and see automatic price calculations. The cart also checks product stock so customers cannot add more than the available quantity.
+
+[ADD SCREENSHOT HERE: Cart page with products, quantity input, remove option, subtotal, and checkout button]
+[ADD SCREENSHOT HERE: Cart total changing after quantity update, if required by your report]
+
+Relevant Source Code
+
+File: customer/app/controllers/Cart.php
+
+public function add($id = null)
+{
+    $product = $this->model('Product')->find((int) $id);
+    if (!$product || !(int) $product['is_available']) {
+        flash('error', 'This product is not available.');
+        redirect('');
+    }
+
+    if ((int) $product['stock_quantity'] < 1) {
+        flash('error', 'This product is currently out of stock.');
+        redirect('');
+    }
+
+    $_SESSION['cart'] = $_SESSION['cart'] ?? [];
+    $currentQty = (int) ($_SESSION['cart'][$product['id']] ?? 0);
+    $_SESSION['cart'][$product['id']] = min($currentQty + 1, (int) $product['stock_quantity']);
+
+    flash('success', 'Product added to cart.');
+    redirect('cart');
+}
+
+File: customer/app/views/cart/index.view.php
+
+<input class="qty-input"
+       type="number"
+       name="qty[<?= (int) $item['id'] ?>]"
+       value="<?= (int) $item['cart_qty'] ?>"
+       min="0"
+       max="<?= (int) $item['stock_quantity'] ?>"
+       data-price="<?= (float) $item['price'] ?>">
+
+File: customer/public/assets/js/app.js
+
+const line = Number(field.value || 0) * Number(field.dataset.price || 0);
+total += line;
+lineTotal.textContent = formatMoney(line);
+cartTotal.textContent = formatMoney(total);
+
+Code Explanation
+
+Cart data is stored in the PHP session as product IDs and quantities.
+
+min() prevents the cart quantity from exceeding available stock.
+
+The quantity input stores product price in data-price, allowing JavaScript to recalculate line totals and subtotal instantly.
+
+If quantity is set to 0, the product is removed from the cart during update.
+
+
+Feature 3.1.5: Checkout and Order Placement
+
+Customers can checkout using Cash on Delivery. When an order is placed, real records are inserted into the orders and order_items tables. Product stock is also reduced after successful order creation.
+
+[ADD SCREENSHOT HERE: Checkout page showing shipping address form, cash on delivery payment method, and order summary]
+[ADD SCREENSHOT HERE: Success message after placing an order]
+
+Relevant Source Code
+
+File: customer/app/controllers/Checkout.php
+
+$orderId = $this->model('Order')->create(
+    current_user()['id'],
+    $address,
+    $items
+);
+
+unset($_SESSION['cart']);
+
+flash('success', 'Order #' . $orderId . ' placed successfully.');
+redirect('orders');
+
+File: customer/app/models/Order.php
+
+$orderId = $this->db->insert(
+    "INSERT INTO orders (user_id, shipping_address, payment_method, subtotal, discount_amount, total_amount)
+     VALUES (?, ?, 'cash_on_delivery', ?, 0, ?)",
+    [(int) $userId, $shippingAddress, $subtotal, $subtotal]
+);
+
+$this->db->insert(
+    "INSERT INTO order_items (order_id, product_id, seller_id, quantity, price, status)
+     VALUES (?, ?, ?, ?, ?, 'pending')",
+    [$orderId, (int) $item['id'], (int) $item['seller_id'], $qty, (float) $item['price']]
+);
+
+$this->db->query(
+    "UPDATE products SET stock_quantity = GREATEST(stock_quantity - ?, 0), updated_at = NOW() WHERE id = ?",
+    [$qty, (int) $item['id']]
+);
+
+Code Explanation
+
+Checkout requires the customer to be logged in before placing an order.
+
+The order payment method is fixed as cash_on_delivery.
+
+The system inserts one main order into orders, then inserts each cart product into order_items.
+
+Database transaction methods are used so the order and order items are created together safely.
+
+After order placement, the cart session is cleared and product stock is reduced.
+
+
+Feature 3.1.6: Wishlist Management
+
+Logged-in customers can save products to their wishlist and remove them later. The system checks for existing wishlist records before inserting, preventing duplicate saved products.
+
+[ADD SCREENSHOT HERE: Wishlist page showing saved products with Add to Cart and Remove buttons]
+
+Relevant Source Code
+
+File: customer/app/controllers/Wishlist.php
+
+public function add($id = null)
+{
+    require_customer();
+    $this->model('WishlistModel')->add(current_user()['id'], (int) $id);
+    flash('success', 'Product saved to wishlist.');
+    redirect('wishlist');
+}
+
+public function remove($id = null)
+{
+    require_customer();
+    $this->model('WishlistModel')->remove(current_user()['id'], (int) $id);
+    flash('success', 'Product removed from wishlist.');
+    redirect('wishlist');
+}
+
+File: customer/app/models/WishlistModel.php
+
+$exists = $this->db->one(
+    "SELECT id FROM wishlists WHERE user_id = ? AND product_id = ?",
+    [(int) $userId, (int) $productId]
+);
+
+if ($exists) {
+    return false;
+}
+
+$this->db->insert(
+    "INSERT INTO wishlists (user_id, product_id) VALUES (?, ?)",
+    [(int) $userId, (int) $productId]
+);
+
+Code Explanation
+
+require_customer() protects wishlist features from guest users.
+
+Before adding a product, the model checks whether the same user already saved the same product.
+
+Removing a wishlist item deletes the record by user_id and product_id, so customers can only remove their own saved products.
+
+
+Feature 3.1.7: Customer Profile Management
+
+Customers can view and update their profile information. The customer can edit name and phone number, while email is displayed as disabled to avoid accidental identity changes.
+
+[ADD SCREENSHOT HERE: Profile page showing customer information and edit form]
+[ADD SCREENSHOT HERE: Success message after profile update]
+
+Relevant Source Code
+
+File: customer/app/controllers/Account.php
+
+public function profile()
+{
+    require_customer();
+    $user = $this->model('User')->find(current_user()['id']);
+
+    $this->view('account/profile', [
+        'title' => 'Profile',
+        'user' => $user,
+    ]);
+}
+
+public function update()
+{
+    require_customer();
+
+    $data = [
+        'name' => trim($_POST['name'] ?? ''),
+        'phone' => trim($_POST['phone'] ?? ''),
+    ];
+
+    if ($data['name'] === '') {
+        flash('error', 'Name is required.');
+        redirect('account/profile');
+    }
+
+    $this->model('User')->updateProfile(current_user()['id'], $data);
+    $_SESSION['user']['name'] = $data['name'];
+    $_SESSION['user']['phone'] = $data['phone'];
+
+    flash('success', 'Profile updated.');
+    redirect('account/profile');
+}
+
+File: customer/app/models/User.php
+
+public function updateProfile($id, $data)
+{
+    return $this->db->query(
+        "UPDATE users SET name = ?, phone = ? WHERE id = ? AND role = 'customer'",
+        [$data['name'], $data['phone'], (int) $id]
+    );
+}
+
+Code Explanation
+
+The profile page is protected by require_customer(), so only logged-in customers can access it.
+
+Only name and phone are updated. Email is not editable from the customer profile form.
+
+After profile update, the session data is refreshed so the navbar/account area shows the updated customer data immediately.
+
+The update query includes role = 'customer', which prevents updating non-customer users through this route.
+
+
+Feature 3.1.8: Order History
+
+Customers can view their previous orders with order date, shipping address, total amount, ordered products, quantity, seller name, and item status.
+
+[ADD SCREENSHOT HERE: Order history page showing previous orders and item statuses]
+
+Relevant Source Code
+
+File: customer/app/controllers/Orders.php
+
+public function index()
+{
+    require_customer();
+
+    $this->view('orders/index', [
+        'title' => 'Order History',
+        'orders' => $this->model('Order')->allForUser(current_user()['id']),
+    ]);
+}
+
+File: customer/app/models/Order.php
+
+public function allForUser($userId)
+{
+    $orders = $this->db->query(
+        "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
+        [(int) $userId]
+    );
+
+    foreach ($orders as &$order) {
+        $order['items'] = $this->items($order['id'], $userId);
+    }
+
+    return $orders;
+}
+
+public function items($orderId, $userId)
+{
+    return $this->db->query(
+        "SELECT oi.*, p.name, p.primary_image, s.shop_name
+         FROM order_items oi
+         JOIN orders o ON o.id = oi.order_id
+         JOIN products p ON p.id = oi.product_id
+         JOIN sellers s ON s.id = oi.seller_id
+         WHERE oi.order_id = ? AND o.user_id = ?
+         ORDER BY oi.id",
+        [(int) $orderId, (int) $userId]
+    );
+}
+
+Code Explanation
+
+Order history is restricted to logged-in customers only.
+
+allForUser() fetches only the orders belonging to the current customer.
+
+Each order is expanded with its related order_items using the items() method.
+
+The item query checks both order_id and user_id, preventing one customer from viewing another customer's order items.
+
+
+Feature 3.1.9: Shared Layout, Footer, and Customer Navigation
+
+The customer side uses a shared header and footer across all views. The navbar includes product search, cart count, login/register buttons for guests, and account links for logged-in customers. The footer contains regular ecommerce links such as order history, wishlist, cart, checkout, and contact information.
+
+[ADD SCREENSHOT HERE: Navbar shown before login with Login and Register buttons]
+[ADD SCREENSHOT HERE: Navbar shown after login with Wishlist, Orders, Profile, and Logout links]
+[ADD SCREENSHOT HERE: Footer section]
+
+Relevant Source Code
+
+File: customer/app/views/partials/header.php
+
+<a class="brand" href="<?= url('') ?>">
+    <span class="brand-mark">S</span>
+    <span><?= APP_NAME ?></span>
+</a>
+
+<form class="nav-search" method="get" action="<?= url('') ?>">
+    <input type="hidden" name="url" value="home">
+    <input type="search" name="q" placeholder="Search products" value="<?= esc($_GET['q'] ?? '') ?>">
+    <button type="submit">Search</button>
+</form>
+
+<a href="<?= url('cart') ?>">Cart <span class="pill"><?= cart_count() ?></span></a>
+
+<?php if ($user): ?>
+    <a href="<?= url('wishlist') ?>">Wishlist</a>
+    <a href="<?= url('orders') ?>">Orders</a>
+    <a href="<?= url('account/profile') ?>">Profile</a>
+    <a class="btn btn-ghost" href="<?= url('auth/logout') ?>">Logout</a>
+<?php else: ?>
+    <a href="<?= url('auth/login') ?>">Login</a>
+    <a class="btn btn-primary" href="<?= url('auth/register') ?>">Register</a>
+<?php endif; ?>
+
+File: customer/app/views/partials/footer.php
+
+<footer class="site-footer">
+    <div>
+        <h3><?= APP_NAME ?></h3>
+        <p>Quality products, simple checkout, and customer-first shopping.</p>
+    </div>
+    <div>
+        <h4>Customer Care</h4>
+        <a href="<?= url('orders') ?>">Order history</a>
+        <a href="<?= url('wishlist') ?>">Wishlist</a>
+        <a href="<?= url('account/profile') ?>">Account</a>
+    </div>
+</footer>
+
+Code Explanation
+
+The header is reused by all views, keeping navigation consistent across the customer side.
+
+cart_count() shows the number of products currently stored in the customer's session cart.
+
+Guest users see Login and Register buttons.
+
+Logged-in customers see Wishlist, Orders, Profile, and Logout links.
+
+The footer adds standard ecommerce website links and contact information.
+
+
+Feature 3.1.10: Fallback Images and Session Storage
+
+The system shows default images when real product or profile images are missing. The customer app also stores PHP session files inside the project storage folder, which avoids permission problems with the default XAMPP temporary session folder.
+
+[ADD SCREENSHOT HERE: Product card using fallback/default image, only if real product images are missing]
+
+Relevant Source Code
+
+File: customer/app/core/functions.php
+
+function product_image($path)
+{
+    $path = trim((string) $path);
+
+    if ($path !== '') {
+        $customerFile = dirname(__DIR__, 2) . '/public/' . $path;
+        $sellerFile = dirname(__DIR__, 3) . '/seller/' . $path;
+
+        if (is_file($customerFile)) {
+            return url($path);
+        }
+
+        if (is_file($sellerFile)) {
+            return project_url('seller/' . $path);
+        }
+
+        if (preg_match('#^https?://#', $path)) {
+            return $path;
+        }
+    }
+
+    return url('assets/images/default-product.svg');
+}
+
+File: customer/public/index.php
+
+$sessionPath = dirname(__DIR__) . '/storage/sessions';
+if (!is_dir($sessionPath)) {
+    mkdir($sessionPath, 0777, true);
+}
+session_save_path($sessionPath);
+session_start();
+
+Code Explanation
+
+product_image() first checks whether a real image exists inside the customer public folder.
+
+If not found there, it checks the seller folder, which allows customer pages to display product images uploaded from the seller side.
+
+If no real image is found, the app uses assets/images/default-product.svg.
+
+session_save_path() stores session files in customer/storage/sessions, which supports login, cart, and flash messages without depending on C:\xampp\tmp permissions.
