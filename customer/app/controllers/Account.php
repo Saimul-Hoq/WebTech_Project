@@ -1,6 +1,7 @@
 <?php
 
 //created account class
+//Home page created
 class Account extends Controller
 {
     public function profile()

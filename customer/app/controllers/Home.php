@@ -12,8 +12,11 @@ class Home extends Controller
 
         $this->view('home', [
             'title' => 'Fresh finds for every cart',
+
             'products' => $productModel->featured($filters),
+
             'categories' => $productModel->categories(),
+            
             'filters' => $filters,
         ]);
     }
