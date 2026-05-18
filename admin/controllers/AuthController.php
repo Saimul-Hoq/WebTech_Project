@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 require_once '../config/db.php';
 require_once '../models/AdminModel.php';
@@ -27,7 +26,10 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($action === 'logout') {
     session_destroy();
-    header("Location: DashboardController.php");
+    header("Location: ../views/login.php");
     exit();
 }
+
+header("Location: ../views/login.php");
+exit();
 ?>
