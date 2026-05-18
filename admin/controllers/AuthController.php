@@ -16,7 +16,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($admin && password_verify($password, $admin['password'])) {
         $_SESSION['admin_id']   = $admin['id'];
         $_SESSION['admin_name'] = $admin['name'];
-        header("Location: ../views/dashboard.php");
+        header("Location: DashboardController.php");
         exit();
     } else {
         $_SESSION['login_error'] = "Invalid email or password.";
@@ -27,7 +27,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($action === 'logout') {
     session_destroy();
-    header("Location: ../views/dashboard.php");
+    header("Location: DashboardController.php");
     exit();
 }
 ?>
