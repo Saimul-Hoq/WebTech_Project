@@ -27,23 +27,19 @@
 </head>
 <body>
 
-<div class="topbar">
-  <span>Admin Panel</span>
-  <a href="../controllers/AuthController.php?action=logout">Logout</a>
-</div>
-
-<div class="nav">
-  <a href="../controllers/DashboardController.php">Dashboard</a>
-  <a href="../controllers/SellerController.php">Sellers</a>
-  <a href="../controllers/CategoryController.php">Categories</a>
-  <a href="../controllers/UserController.php">Users</a>
-  <a href="../controllers/ProductController.php">Products</a>
-  <a href="../controllers/OrderController.php">Orders</a>
-  <a href="../controllers/DisputeController.php">Disputes</a>
-</div>
+<?php require_once '../views/nav.php'; ?>
 
 <div class="container">
   <h2>Manage Sellers</h2>
+    <form method="GET" action="SellerController.php" style="margin-bottom:20px;">
+    <div style="display:flex; gap:10px;">
+        <input type="text" name="search" placeholder="Search seller name or shop"
+            value="<?= htmlspecialchars($search ?? '') ?>"
+            style="padding:8px; border:1px solid #ccc; border-radius:4px; width:250px;">
+        <button type="submit" style="padding:8px 16px; background:#333; color:white; border:none; border-radius:4px; cursor:pointer;">Search</button>
+    </div>
+    </form>
+
   <table>
     <tr>
       <th>ID</th>

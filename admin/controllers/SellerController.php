@@ -30,6 +30,7 @@ if ($action === 'reactivate' && isset($_GET['id'], $_GET['user_id'])) {
     exit();
 }
 
-$sellers = $model->getAllSellers();
+$search  = $_GET['search'] ?? '';
+$sellers = $model->getAllSellers($search);
 require_once '../views/sellers.php';
 ?>

@@ -31,5 +31,15 @@ class DashboardModel {
         $result = $this->conn->query("SELECT SUM(total_amount) as revenue FROM orders WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
         return $result->fetch_assoc()['revenue'] ?? 0;
     }
+
+    public function getTotalOrders() {
+    $result = $this->conn->query("SELECT COUNT(*) as total FROM orders");
+    return $result->fetch_assoc()['total'];
+    }
+
+    public function getPendingDisputes() {
+        $result = $this->conn->query("SELECT COUNT(*) as total FROM disputes WHERE status = 'open'");
+        return $result->fetch_assoc()['total'];
+    }
 }
 ?>

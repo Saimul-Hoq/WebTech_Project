@@ -8,14 +8,18 @@ class SellerModel {
         $this->conn = $conn;
     }
 
-    public function getAllSellers() {
-        $result = $this->conn->query(
-            "SELECT s.*, u.name, u.email, u.is_active 
-             FROM sellers s 
-             JOIN users u ON s.user_id = u.id 
-             ORDER BY s.created_at DESC"
-        );
-        return $result->fetch_all(MYSQLI_ASSOC);
+    public function getAllSellers($search = '') {
+    $search = "%$search%";
+    $stmt = $this->conn->prepare(
+        "SELECT s.*, u.name, u.email, u.is_active 
+         FROM sellers s 
+         JOIN users u ON s.user_id = u.id
+         WHERE u.name LIKE ? OR s.shop_name LIKE ?
+         ORDER BY s.created_at DESC"
+    );
+    $stmt->bind_param("ss", $search, $search);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function updateSellerStatus($seller_id, $status) {

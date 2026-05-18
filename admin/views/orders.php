@@ -23,20 +23,7 @@
 </head>
 <body>
 
-<div class="topbar">
-  <span>Admin Panel</span>
-  <a href="../controllers/AuthController.php?action=logout">Logout</a>
-</div>
-
-<div class="nav">
-  <a href="../controllers/DashboardController.php">Dashboard</a>
-  <a href="../controllers/SellerController.php">Sellers</a>
-  <a href="../controllers/CategoryController.php">Categories</a>
-  <a href="../controllers/UserController.php">Users</a>
-  <a href="../controllers/ProductController.php">Products</a>
-  <a href="../controllers/OrderController.php">Orders</a>
-  <a href="../controllers/DisputeController.php">Disputes</a>
-</div>
+<?php require_once '../views/nav.php'; ?>
 
 <div class="container">
   <h2>All Orders</h2>
