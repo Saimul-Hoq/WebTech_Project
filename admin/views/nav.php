@@ -4,6 +4,7 @@
 </div>
 
 <div class="nav">
+  <a href="../controllers/ProfileController.php">Profile</a>
   <a href="../controllers/DashboardController.php">Dashboard</a>
   <a href="../controllers/SellerController.php">Sellers</a>
   <a href="../controllers/CategoryController.php">Categories</a>
