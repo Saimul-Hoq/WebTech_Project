@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/db.php';
 require_once '../models/AdminModel.php';
-// GJJGJGJJGJHgd
+// GJJGJGJJGJfgHgd
 $model  = new AdminModel($conn);
 $action = $_GET['action'] ?? '';
 
