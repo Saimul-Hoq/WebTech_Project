@@ -11,11 +11,13 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name        = trim($_POST['name']);
     $description = trim($_POST['description']);
     $parent_id   = $_POST['parent_id'] ?? null;
-    if ($name) {
+    if (empty($name)) {
+        $error = "Category name is required.";
+    } else {
         $model->addCategory($name, $description, $parent_id);
+        header("Location: CategoryController.php");
+        exit();
     }
-    header("Location: CategoryController.php");
-    exit();
 }
 
 if ($action === 'rename' && $_SERVER['REQUEST_METHOD'] === 'POST') {
