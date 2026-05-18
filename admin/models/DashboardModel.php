@@ -18,8 +18,11 @@ class DashboardModel {
     }
 
     public function getTotalActiveSellers() {
-        $result = $this->conn->query("SELECT COUNT(*) as total FROM sellers WHERE status = 'approved'");
-        return $result->fetch_assoc()['total'];
+        $result = $this->conn->query(
+            "SELECT COUNT(*) as total FROM sellers WHERE status = 'approved'"
+        );
+        $row = $result->fetch_assoc();
+        return $row['total'];
     }
 
     public function getTodayOrders() {
