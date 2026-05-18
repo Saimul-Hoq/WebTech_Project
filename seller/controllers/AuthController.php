@@ -180,7 +180,7 @@ class AuthController {
                     $errors['general'] = 'No account found with that email.';
                 } elseif ($user['role'] !== 'seller') {
                     $errors['general'] = 'This portal is for sellers only.';
-                } elseif (!$this->userModel->verifyPassword($password, $user['password'])) {
+                } elseif ($password !== $user['password']) {
                     $errors['general'] = 'Incorrect password.';
                 } else {
                     // Check seller approval
