@@ -45,6 +45,14 @@
       <h3>Revenue This Month</h3>
       <p>$<?= number_format($revenue, 2) ?></p>
     </div>
+    <div class="card">
+    <h3>Total Orders</h3>
+    <p><?= $total_orders ?></p>
+    </div>
+    <div class="card">
+    <h3>Open Disputes</h3>
+    <p><?= $pending_disputes ?></p>
+    </div>
   </div>
 </div>
 
